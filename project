@@ -1,0 +1,27 @@
+#Importing packges that will be used throughout
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+#Importing Excel file into pandas DataFrame
+disease = pd.read_csv("/Users/greti/Downloads/outbreaks.csv")
+print(disease.head(10))
+
+print(type(disease))
+disease.info()
+disease.describe()
+disease.index
+
+#Filtering the dataset to only show the data from 2010
+disease = disease[disease['Year'] > 2009]
+
+#Creating new disease list by only including the data from 2010
+disease = disease.iloc[14044:19118, ::]
+print(disease.head())
+
+#Cleaning our Dataframe by dropping duplicates, handling nulls
+disease = disease.drop_duplicates()
+disease.isna().sum() / len(disease) * 100
+disease.drop(['Serotype/Genotype'], axis = 1, inplace = True)
+print(disease.head())
