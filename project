@@ -1,6 +1,14 @@
-#Importing packges that will be used throughout
-import pandas as pd
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Jul 19 20:03:58 2021
+
+@author: greti
+"""
+
+#Importing packages to use throughout the project
 import numpy as np
+import pandas as pd 
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -8,20 +16,52 @@ import seaborn as sns
 disease = pd.read_csv("/Users/greti/Downloads/outbreaks.csv")
 print(disease.head(10))
 
-print(type(disease))
+#Analyzing the data by different methods
+type(disease)
 disease.info()
 disease.describe()
 disease.index
 
-#Filtering the dataset to only show the data from 2010
-disease = disease[disease['Year'] > 2009]
-
-#Creating new disease list by only including the data from 2010
-disease = disease.iloc[14044:19118, ::]
-print(disease.head())
-
-#Cleaning our Dataframe by dropping duplicates, handling nulls
+#Cleaning the dataset by dropping duplicates
 disease = disease.drop_duplicates()
-disease.isna().sum() / len(disease) * 100
-disease.drop(['Serotype/Genotype'], axis = 1, inplace = True)
+
+#Cleaning the dataset by identifying nulls and replacing those missing values
+disease.isnull().sum()
+disease.isnull().sum().sum()
+
+#Tailoring the dataset by removing columns with too many missing values and filling out missing values by new given values
+disease.drop(disease.iloc[:, 5:9], inplace = True, axis=1)
+disease['Location'].fillna(value= "Unknown", inplace = True)
+disease["Hospitalizations"].fillna(value = 0, inplace = True)
+disease["Fatalities"].fillna(value=0, inplace = True)
+disease["Food"].fillna(value= "Unknown", inplace = True)
+
+disease.isnull().sum().sum()
+
+#Merging two columns of the dataset: Year and Month to Time
+disease["Time"] = disease["Year"].astype(str) + disease["Month"].astype(str)
 print(disease.head())
+
+#Sorting by multipe colums
+disease_illness = disease.sort_values([ "Illnesses", "Time"], ascending=False)
+disease_illness .head()
+disease_illness = disease_illness[disease_illness.State != 'Multistate']
+disease_illness.head()
+
+#Creating a barplot to show the number of cases throughout the given timeframe in each state
+g=sns.catplot(data=disease_illness, kind="bar", x="Illnesses", y="State", height=6, aspect=0.5).set(title= "Number of cases per state 1998-2015")
+
+
+#Grouping the number of illnesses based on the location
+disease_loc = disease.groupby("Location")["Illnesses"].sum()
+disease_loc.head()
+
+sns.scatterplot(data=disease, x="Illnesses", y="Location",saturation=0.75)
+
+
+#Filter DataFrame to the string "Chicken" in the food column
+disease[disease['Food'].str.contains("Chicken")].count()
+
+#Calculate percentage of severe diseases and assign them to Severe diseases column
+disease["Severe disease"] = ((disease["Hospitalizations"] + disease["Fatalities"]) / disease["Illnesses"].sum()) * 100
+disease.head()
