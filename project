@@ -56,8 +56,11 @@ g=sns.catplot(data=disease_illness, kind="bar", x="Illnesses", y="State", height
 disease_loc = disease.groupby("Location")["Illnesses"].sum()
 disease_loc.head()
 
+plt.figure(figsize=(20,10))
 sns.scatterplot(data=disease, x="Illnesses", y="Location",saturation=0.75)
-
+plt.xticks(rotation= 90)
+plt.ylabel('Income Rate')
+plt.title('Income Rate Given Region')
 
 #Filter DataFrame to the string "Chicken" in the food column
 disease[disease['Food'].str.contains("Chicken")].count()
@@ -65,3 +68,72 @@ disease[disease['Food'].str.contains("Chicken")].count()
 #Calculate percentage of severe diseases and assign them to Severe diseases column
 disease["Severe disease"] = ((disease["Hospitalizations"] + disease["Fatalities"]) / disease["Illnesses"].sum()) * 100
 disease.head()
+
+
+disease_year = [] 
+
+for row in disease["Year"]:
+    index = row - 1998
+    if index < len(disease_year):
+        disease_year[index] = disease_year[index] + 1
+    else:
+        disease_year.append(1)
+        
+for year in year_label:
+    print((str(year)) +": " + str(disease_year[int(year) - 1998]))
+   
+plt.plot(year_label, disease_year, color = 'blue', linewidth=3, linestyle='dashed')
+
+severe_disease_year = []
+
+for row in disease["Year"]:
+    index = row - 1998
+    if index < len(disease_year):
+        disease_year[index] = disease_year[index] + 1
+    else:
+        disease_year.append(1)
+        
+for year in year_label:
+    print((str(year)) +": " + str(disease_year[int(year) - 1998]))
+    
+#For pie chart, We use outbreaks dataset and show the event happen each months
+labels = outbreaks.Month.value_counts().index
+colors = ['blue','grey','red','yellow','purple','beige','orange','green','brown','burlywood','pink','turquoise']
+explode = [0,0,0,0,0,0,0,0,0,0,0,0]
+sizes = outbreaks.Month.value_counts().values
+
+# visual
+plt.figure(figsize = (7,7))
+plt.pie(sizes, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%')
+plt.title('Event Happen According to Months',color = 'blue',fontsize = 15)
+
+#Horizontal Bar Plot
+area_list = list(us_census['State'].unique())
+
+#We create 5 empty list to keep each races
+share_white = []
+share_black = []
+share_native_american = []
+share_asian = []
+share_hispanic = []
+
+#Find the number of each races in the States
+for i in area_list:
+    x = us_census[us_census['State']==i]
+    share_white.append(sum(x.White)/len(x))
+    share_black.append(sum(x.Black) / len(x))
+    share_native_american.append(sum(x.Native) / len(x))
+    share_asian.append(sum(x.Asian) / len(x))
+    share_hispanic.append(sum(x.Hispanic) / len(x))
+
+# visualization
+f,ax = plt.subplots(figsize = (9,15))
+sns.barplot(x=share_white,y=area_list,color='green',alpha = 0.5,label='White' )
+sns.barplot(x=share_black,y=area_list,color='blue',alpha = 0.7,label='African American')
+sns.barplot(x=share_native_american,y=area_list,color='cyan',alpha = 0.6,label='Native American')
+sns.barplot(x=share_asian,y=area_list,color='yellow',alpha = 0.6,label='Asian')
+sns.barplot(x=share_hispanic,y=area_list,color='red',alpha = 0.6,label='Hispanic')
+
+ax.legend(loc='lower right',frameon = True)     # legendlarin gorunurlugu
+ax.set(xlabel='Percentage of Races', ylabel='States',title = "Percentage of State's Population According to Races ")
+    
